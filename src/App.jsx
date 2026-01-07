@@ -1,19 +1,10 @@
-/**
- * Echo
- * * A lightweight, WYSIWYG note-taking application.
- * * Tech Stack:
- * - React: UI Library
- * - Tailwind CSS: Styling
- * - Lucide React: Icons
- * - LocalStorage: Data persistence
- */
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, PanelLeft } from 'lucide-react';
 import Sidebar from './components/layout/Sidebar';
 import EmptyState from './components/layout/EmptyState';
 import EditorToolbar from './components/editor/EditorToolbar';
 import { useEditor } from './components/editor/useEditor';
+import CommandMenu from './components/editor/CommandMenu';
 
 // --- Main App Logic ---
 
@@ -40,6 +31,13 @@ export default function App() {
     const [activeNoteId, setActiveNoteId] = useState(null); // ID of currently open note
     const [searchQuery, setSearchQuery] = useState(''); // Search filter text
     const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Toggles sidebar visibility (Desktop & Mobile)
+
+    // Slash Command Menu State
+    const [commandMenu, setCommandMenu] = useState({
+        isOpen: false,
+        position: { x: 0, y: 0 },
+        filter: ''
+    });
 
     const editorRef = useRef(null); // Reference to the ContentEditable div
 
@@ -82,6 +80,30 @@ export default function App() {
 
     // --- Event Handlers ---
 
+    // Helper to get cursor coordinates for the menu
+    const getCaretCoordinates = () => {
+        let x = 0, y = 0;
+        const selection = window.getSelection();
+        if (selection.rangeCount) {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            // Fallback for empty lines
+            if (rect.height === 0 && rect.width === 0) {
+                const parentRect = range.startContainer.parentElement?.getBoundingClientRect();
+                if (parentRect) {
+                    x = parentRect.left;
+                    y = parentRect.top;
+                }
+            } else {
+                x = rect.left;
+                y = rect.top;
+            }
+        }
+        return { x, y };
+    };
+
+    const closeMenu = () => setCommandMenu(prev => ({ ...prev, isOpen: false, filter: '' }));
+
     const handleCreateNote = () => {
         const newNote = {
             id: Date.now().toString(),
@@ -96,8 +118,6 @@ export default function App() {
         }
     };
 
-    // ... (keep handleUpdateNote and handleContentInput same)
-
     const handleUpdateNote = (key, value) => {
         const updatedNotes = notes.map(note => {
             if (note.id === activeNoteId) {
@@ -108,6 +128,34 @@ export default function App() {
         setNotes(updatedNotes);
     };
 
+    // Handle Keyboard Navigation for Menu
+    const handleKeyDown = (e) => {
+        if (commandMenu.isOpen) {
+            if (['ArrowUp', 'ArrowDown', 'Enter', 'Escape'].includes(e.key)) {
+                // Let the CommandMenu component listen to these via document events,
+                // but prevent default here to stop editor cursor movement.
+                // Actually, our CommandMenu uses document listener, so we just need to prevent default behavior in editor.
+                if (e.key === 'Enter') e.preventDefault();
+                if (e.key === 'ArrowUp') e.preventDefault();
+                if (e.key === 'ArrowDown') e.preventDefault();
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeMenu();
+                }
+                return;
+            }
+        }
+
+        if (e.key === '/') {
+            const coords = getCaretCoordinates();
+            setCommandMenu({
+                isOpen: true,
+                position: coords,
+                filter: ''
+            });
+        }
+    };
+
     const handleContentInput = (e) => {
         const content = e.currentTarget.innerHTML;
         const noteIndex = notes.findIndex(n => n.id === activeNoteId);
@@ -116,6 +164,57 @@ export default function App() {
             newNotes[noteIndex] = { ...newNotes[noteIndex], content, updatedAt: Date.now() };
             setNotes(newNotes);
         }
+
+        // Handle Slash Command Filtering
+        if (commandMenu.isOpen) {
+            const selection = window.getSelection();
+            if (selection.rangeCount) {
+                const range = selection.getRangeAt(0);
+                const textNode = range.startContainer;
+
+                if (textNode.nodeType === Node.TEXT_NODE) {
+                    const text = textNode.textContent;
+                    const caretPos = range.startOffset;
+                    const lastSlash = text.lastIndexOf('/', caretPos - 1);
+
+                    if (lastSlash !== -1) {
+                        const filterText = text.substring(lastSlash + 1, caretPos);
+                        if (filterText.includes(' ')) {
+                            closeMenu();
+                        } else {
+                            setCommandMenu(prev => ({ ...prev, filter: filterText }));
+                        }
+                    } else {
+                        closeMenu();
+                    }
+                } else {
+                    closeMenu();
+                }
+            }
+        }
+    };
+
+    const handleCommandSelect = (command) => {
+        // Remove the slash + filter text before applying command
+        const selection = window.getSelection();
+        if (selection.rangeCount) {
+            const range = selection.getRangeAt(0);
+            const textNode = range.startContainer;
+            if (textNode.nodeType === Node.TEXT_NODE) {
+                const text = textNode.textContent;
+                const caretPos = range.startOffset;
+                const lastSlash = text.lastIndexOf('/', caretPos - 1);
+                if (lastSlash !== -1) {
+                    // Delete the slash command text
+                    range.setStart(textNode, lastSlash);
+                    range.setEnd(textNode, caretPos);
+                    range.deleteContents();
+                }
+            }
+        }
+
+        handleFormat(command);
+        closeMenu();
     };
 
     const handleDeleteNote = (e, id) => {
@@ -191,14 +290,25 @@ export default function App() {
                         <EditorToolbar onFormat={handleFormat} />
 
                         {/* ContentEditable Editor */}
-                        <div
-                            ref={editorRef}
-                            contentEditable
-                            onInput={handleContentInput}
-                            placeholder="Type '/' for commands..."
-                            className="flex-1 w-full px-12 py-6 focus:outline-none text-neutral-300 leading-relaxed text-lg prose prose-invert prose-lg max-w-none overflow-y-auto"
-                            style={{ minHeight: '200px' }}
-                        />
+                        <div className="relative flex-1 w-full max-w-none">
+                            <div
+                                ref={editorRef}
+                                contentEditable
+                                onInput={handleContentInput}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Type '/' for commands..."
+                                className="w-full h-full px-12 py-6 focus:outline-none text-neutral-300 leading-relaxed text-lg prose prose-invert prose-lg max-w-none overflow-y-auto"
+                                style={{ minHeight: '200px' }}
+                            />
+                            {commandMenu.isOpen && (
+                                <CommandMenu
+                                    position={commandMenu.position}
+                                    filter={commandMenu.filter}
+                                    onSelect={handleCommandSelect}
+                                    onClose={closeMenu}
+                                />
+                            )}
+                        </div>
                     </div>
                 ) : (
                     <div className="h-full flex flex-col">
