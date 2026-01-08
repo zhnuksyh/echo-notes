@@ -14,7 +14,7 @@ export default defineConfig({
                 short_name: 'Echo',
                 description: 'Simple lightweight echo app',
                 theme_color: '#000000',
-                background_color: '#000000',
+                background_color: '#ffffff',
                 display: 'standalone',
                 icons: [
                     {
