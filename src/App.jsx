@@ -22,7 +22,7 @@ export default function App() {
                 id: '1',
                 title: 'Welcome to Echo',
                 // Default content demonstrating HTML structure
-                content: `<h1>Welcome to Echo</h1><div class="callout">💡 <b>Tip:</b> This is a Notion-style callout block.</div><p>This is a simple, lightweight note taking app with a dark theme.</p><h2>Features</h2><ul><li><font color="#3b82f6">Colored text support</font></li><li><details><summary>Toggle Lists (Click me)</summary><p style="margin-top: 0.5em; padding-left: 1em; color: #9ca3af;">Hidden content revealed!</p></details></li><li><b>Bold</b>, <i>Italic</i>, and <code>Code</code> styling</li></ul><div class="callout">👋 Supports Images too!</div><hr/><p>Start typing to see the magic.</p>`,
+                content: `<h1>Welcome to Echo</h1><div class="callout">💡 <b>Tip:</b> This is a Notion-style callout block.</div><p>This is a simple, lightweight echo app with a dark theme.</p><h2>Features</h2><ul><li><font color="#3b82f6">Colored text support</font></li><li><details><summary>Toggle Lists (Click me)</summary><p style="margin-top: 0.5em; padding-left: 1em; color: #9ca3af;">Hidden content revealed!</p></details></li><li><b>Bold</b>, <i>Italic</i>, and <code>Code</code> styling</li></ul><div class="callout">👋 Supports Images too!</div><hr/><p>Start typing to see the magic.</p>`,
                 updatedAt: Date.now()
             }
         ];
@@ -219,7 +219,7 @@ export default function App() {
 
     const handleDeleteNote = (e, id) => {
         if (e) e.stopPropagation();
-        if (window.confirm('Are you sure you want to delete this note?')) {
+        if (window.confirm('Are you sure you want to delete this echo?')) {
             const newNotes = notes.filter(n => n.id !== id);
             setNotes(newNotes);
             if (activeNoteId === id) {
@@ -281,7 +281,7 @@ export default function App() {
                                 type="text"
                                 value={activeNote.title}
                                 onChange={(e) => handleUpdateNote('title', e.target.value)}
-                                placeholder="Untitled Note"
+                                placeholder="Untitled Echo"
                                 className="w-full text-4xl font-bold text-white placeholder-neutral-700 border-none focus:outline-none focus:ring-0 bg-transparent"
                             />
                         </div>

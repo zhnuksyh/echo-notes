@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Plus, Search, Trash2 } from 'lucide-react';
+import { Waypoints, Plus, Search, Trash2 } from 'lucide-react';
 
 /**
  * Sidebar Component
@@ -29,14 +29,14 @@ const Sidebar = ({
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-xl font-bold text-white flex items-center gap-2">
                         <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                            <FileText className="text-black" size={18} />
+                            <Waypoints className="text-black" size={18} />
                         </div>
-                        Notes
+                        Echo
                     </h1>
                     <button
                         onClick={handleCreateNote}
                         className="p-2 bg-neutral-800 text-neutral-300 border border-neutral-700 rounded-lg hover:bg-neutral-700 transition-colors"
-                        title="New Note"
+                        title="New Echo"
                     >
                         <Plus size={20} />
                     </button>
@@ -46,7 +46,7 @@ const Sidebar = ({
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={16} />
                     <input
                         type="text"
-                        placeholder="Search notes..."
+                        placeholder="Search echoes..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-9 pr-4 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-sm text-neutral-200 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-500 transition-all"
@@ -58,7 +58,7 @@ const Sidebar = ({
             <div className="flex-1 overflow-y-auto w-full"> {/* w-full ensures content stays wide during transitions */}
                 {filteredNotes.length === 0 ? (
                     <div className="p-8 text-center text-neutral-600 text-sm min-w-[20rem]">
-                        {searchQuery ? 'No notes found.' : 'No notes yet.'}
+                        {searchQuery ? 'No echoes found.' : 'No echoes yet.'}
                     </div>
                 ) : (
                     filteredNotes.map(note => {
@@ -92,7 +92,7 @@ const Sidebar = ({
                           p-1.5 text-neutral-500 hover:text-red-400 hover:bg-red-900/20 rounded opacity-0 group-hover:opacity-100 transition-all
                           ${activeNoteId === note.id ? 'opacity-100' : ''}
                         `}
-                                        title="Delete Note"
+                                        title="Delete Echo"
                                     >
                                         <Trash2 size={14} />
                                     </button>
