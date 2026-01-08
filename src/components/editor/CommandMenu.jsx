@@ -7,35 +7,42 @@ import {
 } from 'lucide-react';
 
 const MENU_ITEMS = [
-    { id: 'p', label: 'Text', icon: Type, description: 'Just start writing with plain text.' },
-    { id: 'h1', label: 'Heading 1', icon: Heading1, description: 'Big section heading.' },
-    { id: 'h2', label: 'Heading 2', icon: Heading2, description: 'Medium section heading.' },
-    { id: 'h3', label: 'Heading 3', icon: Heading3, description: 'Small section heading.' },
-    { id: 'bold', label: 'Bold', icon: Bold, description: 'Make text bold.' },
-    { id: 'italic', label: 'Italic', icon: Italic, description: 'Make text italic.' },
-    { id: 'strike', label: 'Strikethrough', icon: Strikethrough, description: 'Strike through text.' },
-    { id: 'code', label: 'Inline Code', icon: Code, description: 'Mark as code.' },
-    { id: 'ul', label: 'Bullet List', icon: List, description: 'Create a simple bulleted list.' },
-    { id: 'ol', label: 'Numbered List', icon: ListOrdered, description: 'Create a list with numbering.' },
-    { id: 'checkbox', label: 'To-do List', icon: CheckSquare, description: 'Track tasks with a to-do list.' },
-    { id: 'toggle', label: 'Toggle List', icon: ChevronRight, description: 'Toggles can hide and show content.' },
-    { id: 'image', label: 'Image', icon: Image, description: 'Upload or embed an image.' },
-    { id: 'quote', label: 'Quote', icon: Quote, description: 'Capture a quote.' },
-    { id: 'callout', label: 'Callout', icon: MessageSquare, description: 'Make writing stand out.' },
-    { id: 'pre', label: 'Code Block', icon: TerminalSquare, description: 'Capture a code snippet.' },
-    { id: 'hr', label: 'Divider', icon: Minus, description: 'Visually divide blocks.' },
+    { id: 'p', label: 'Text', aliases: ['normal', 'paragraph', 'plain'], icon: Type, description: 'Just start writing with plain text.' },
+    { id: 'h1', label: 'Heading 1', aliases: ['big', 'title'], icon: Heading1, description: 'Big section heading.' },
+    { id: 'h2', label: 'Heading 2', aliases: ['medium', 'subtitle'], icon: Heading2, description: 'Medium section heading.' },
+    { id: 'h3', label: 'Heading 3', aliases: ['small'], icon: Heading3, description: 'Small section heading.' },
+    { id: 'bold', label: 'Bold', aliases: ['strong'], icon: Bold, description: 'Make text bold.' },
+    { id: 'italic', label: 'Italic', aliases: ['emphasis'], icon: Italic, description: 'Make text italic.' },
+    { id: 'strike', label: 'Strikethrough', aliases: ['cross', 'delete'], icon: Strikethrough, description: 'Strike through text.' },
+    { id: 'code', label: 'Inline Code', aliases: ['mono'], icon: Code, description: 'Mark as code.' },
+    { id: 'ul', label: 'Bullet List', aliases: ['unordered', 'dots'], icon: List, description: 'Create a simple bulleted list.' },
+    { id: 'ol', label: 'Numbered List', aliases: ['ordered', '123'], icon: ListOrdered, description: 'Create a list with numbering.' },
+    { id: 'checkbox', label: 'To-do List', aliases: ['task', 'check'], icon: CheckSquare, description: 'Track tasks with a to-do list.' },
+    { id: 'toggle', label: 'Toggle List', aliases: ['collapse', 'expand'], icon: ChevronRight, description: 'Toggles can hide and show content.' },
+    { id: 'image', label: 'Image', aliases: ['picture', 'photo', 'upload'], icon: Image, description: 'Upload or embed an image.' },
+    { id: 'quote', label: 'Quote', aliases: ['blockquote'], icon: Quote, description: 'Capture a quote.' },
+    { id: 'callout', label: 'Callout', aliases: ['note', 'alert', 'box'], icon: MessageSquare, description: 'Make writing stand out.' },
+    { id: 'pre', label: 'Code Block', aliases: ['snippet'], icon: TerminalSquare, description: 'Capture a code snippet.' },
+    { id: 'hr', label: 'Divider', aliases: ['line', 'rule', 'separator', 'hr'], icon: Minus, description: 'Visually divide blocks.' },
 ];
 
 const CommandMenu = ({ position, filter, onSelect, onClose }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const filteredItems = MENU_ITEMS.filter(item =>
-        item.label.toLowerCase().includes(filter.toLowerCase())
+        item.label.toLowerCase().includes(filter.toLowerCase()) ||
+        (item.aliases && item.aliases.some(alias => alias.toLowerCase().includes(filter.toLowerCase())))
     );
 
     useEffect(() => {
         setSelectedIndex(0);
     }, [filter]);
+
+    const buttonRefs = React.useRef([]);
+
+    useEffect(() => {
+        buttonRefs.current[selectedIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }, [selectedIndex]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -77,6 +84,7 @@ const CommandMenu = ({ position, filter, onSelect, onClose }) => {
                 {filteredItems.map((item, index) => (
                     <button
                         key={item.id}
+                        ref={(el) => (buttonRefs.current[index] = el)}
                         onClick={() => onSelect(item.id)}
                         className={`
                             flex items-center gap-3 p-2 rounded-md text-left transition-colors

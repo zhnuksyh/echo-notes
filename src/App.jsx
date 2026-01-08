@@ -92,11 +92,11 @@ export default function App() {
             if (rect.height === 0 && rect.width === 0) {
                 const parentRect = range.startContainer.parentElement?.getBoundingClientRect();
                 if (parentRect) {
-                    x = parentRect.left;
+                    x = parentRect.left + 20; // Slight offset for empty line
                     y = parentRect.top;
                 }
             } else {
-                x = rect.left;
+                x = rect.right + 4; // Position to the right of the cursor
                 y = rect.top;
             }
         }
@@ -114,9 +114,7 @@ export default function App() {
         };
         setNotes([newNote, ...notes]);
         setActiveNoteId(newNote.id);
-        if (window.innerWidth < 768) {
-            setIsSidebarOpen(false);
-        }
+        setIsSidebarOpen(false); // Always close sidebar to focus on writing
     };
 
     const handleUpdateNote = (key, value) => {
