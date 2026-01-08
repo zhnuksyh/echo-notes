@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, PanelLeft } from 'lucide-react';
 import Sidebar from './components/layout/Sidebar';
 import EmptyState from './components/layout/EmptyState';
-import EditorToolbar from './components/editor/EditorToolbar';
 import { useEditor } from './components/editor/useEditor';
 import CommandMenu from './components/editor/CommandMenu';
 
@@ -30,7 +29,7 @@ export default function App() {
 
     const [activeNoteId, setActiveNoteId] = useState(null); // ID of currently open note
     const [searchQuery, setSearchQuery] = useState(''); // Search filter text
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Toggles sidebar visibility (Desktop & Mobile)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Toggles sidebar visibility (Desktop & Mobile)Overlay default closed
 
     // Slash Command Menu State
     const [commandMenu, setCommandMenu] = useState({
@@ -239,7 +238,12 @@ export default function App() {
     };
 
     return (
-        <div className="flex h-screen w-full bg-black font-poppins text-neutral-100 overflow-hidden">
+        <div className="flex flex-row h-[100dvh] w-full bg-black font-poppins text-neutral-100 overflow-hidden">
+            {/* Mobile/Desktop Backdrop */}
+            <div
+                className={`fixed inset-0 bg-black/50 z-10 backdrop-blur-sm transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                onClick={() => setIsSidebarOpen(false)}
+            />
 
             <Sidebar
                 isSidebarOpen={isSidebarOpen}
@@ -255,14 +259,14 @@ export default function App() {
             />
 
             {/* --- Main Editor Area --- */}
-            <div className="flex-1 flex flex-col bg-black h-full relative transition-all duration-300">
+            <div className={`flex-1 flex flex-col h-full relative transition-all duration-300 min-w-0`}>
 
                 {/* Editor View */}
                 {activeNote ? (
-                    <div className="flex-1 flex flex-col h-full animate-fade-in relative">
+                    <div className="flex-1 flex flex-col h-full relative">
 
                         {/* Top Bar: Toggle & Breadcrumbs/Meta */}
-                        <div className="flex items-center gap-3 px-6 py-4 border-b border-neutral-900">
+                        <div className="flex items-center gap-3 px-4 md:px-6 py-4 border-b border-neutral-900">
                             <button
                                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                 className="p-2 text-neutral-500 hover:bg-neutral-800 rounded-lg hover:text-white transition-colors"
@@ -276,28 +280,27 @@ export default function App() {
                         </div>
 
                         {/* Note Title Input */}
-                        <div className="px-10 pt-8 pb-4">
+                        <div className="px-4 md:px-10 pt-8 pb-4">
                             <input
                                 type="text"
                                 value={activeNote.title}
                                 onChange={(e) => handleUpdateNote('title', e.target.value)}
                                 placeholder="Untitled Echo"
-                                className="w-full text-4xl font-bold text-white placeholder-neutral-700 border-none focus:outline-none focus:ring-0 bg-transparent"
+                                className="w-full text-3xl md:text-4xl font-bold text-white placeholder-neutral-700 border-none focus:outline-none focus:ring-0 bg-transparent"
                             />
                         </div>
 
-                        {/* Toolbar Component */}
-                        <EditorToolbar onFormat={handleFormat} />
+
 
                         {/* ContentEditable Editor */}
-                        <div className="relative flex-1 w-full max-w-none">
+                        <div className="relative flex-1 w-full max-w-none overflow-y-auto">
                             <div
                                 ref={editorRef}
                                 contentEditable
                                 onInput={handleContentInput}
                                 onKeyDown={handleKeyDown}
                                 placeholder="Type '/' for commands..."
-                                className="w-full h-full px-12 py-6 focus:outline-none text-neutral-300 leading-relaxed text-lg prose prose-invert prose-lg max-w-none overflow-y-auto"
+                                className="w-full h-full px-4 md:px-12 py-6 focus:outline-none text-neutral-300 leading-relaxed text-lg prose prose-invert prose-lg max-w-none"
                                 style={{ minHeight: '200px' }}
                             />
                             {commandMenu.isOpen && (
@@ -311,18 +314,16 @@ export default function App() {
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col">
+                    <div className="h-full flex flex-col overflow-y-auto">
                         {/* Show Toggle even in Empty State so user can open sidebar if they closed it */}
-                        {!isSidebarOpen && (
-                            <div className="p-4">
-                                <button
-                                    onClick={() => setIsSidebarOpen(true)}
-                                    className="p-2 text-neutral-400 hover:bg-neutral-800 rounded-lg"
-                                >
-                                    <PanelLeft size={24} />
-                                </button>
-                            </div>
-                        )}
+                        <div className="p-4">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="p-2 text-neutral-400 hover:bg-neutral-800 rounded-lg"
+                            >
+                                <PanelLeft size={24} />
+                            </button>
+                        </div>
                         <EmptyState onCreate={handleCreateNote} />
                     </div>
                 )}
