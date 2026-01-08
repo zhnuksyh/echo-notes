@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
     Type, Heading1, Heading2, Heading3,
     List, ListOrdered, CheckSquare, ChevronRight,
-    Quote, MessageSquare, TerminalSquare, Minus
+    Quote, MessageSquare, TerminalSquare, Minus,
+    Image, Bold, Italic, Strikethrough, Code
 } from 'lucide-react';
 
 const MENU_ITEMS = [
@@ -10,13 +11,18 @@ const MENU_ITEMS = [
     { id: 'h1', label: 'Heading 1', icon: Heading1, description: 'Big section heading.' },
     { id: 'h2', label: 'Heading 2', icon: Heading2, description: 'Medium section heading.' },
     { id: 'h3', label: 'Heading 3', icon: Heading3, description: 'Small section heading.' },
+    { id: 'bold', label: 'Bold', icon: Bold, description: 'Make text bold.' },
+    { id: 'italic', label: 'Italic', icon: Italic, description: 'Make text italic.' },
+    { id: 'strike', label: 'Strikethrough', icon: Strikethrough, description: 'Strike through text.' },
+    { id: 'code', label: 'Inline Code', icon: Code, description: 'Mark as code.' },
     { id: 'ul', label: 'Bullet List', icon: List, description: 'Create a simple bulleted list.' },
     { id: 'ol', label: 'Numbered List', icon: ListOrdered, description: 'Create a list with numbering.' },
     { id: 'checkbox', label: 'To-do List', icon: CheckSquare, description: 'Track tasks with a to-do list.' },
     { id: 'toggle', label: 'Toggle List', icon: ChevronRight, description: 'Toggles can hide and show content.' },
+    { id: 'image', label: 'Image', icon: Image, description: 'Upload or embed an image.' },
     { id: 'quote', label: 'Quote', icon: Quote, description: 'Capture a quote.' },
     { id: 'callout', label: 'Callout', icon: MessageSquare, description: 'Make writing stand out.' },
-    { id: 'pre', label: 'Code', icon: TerminalSquare, description: 'Capture a code snippet.' },
+    { id: 'pre', label: 'Code Block', icon: TerminalSquare, description: 'Capture a code snippet.' },
     { id: 'hr', label: 'Divider', icon: Minus, description: 'Visually divide blocks.' },
 ];
 

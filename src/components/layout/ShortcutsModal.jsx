@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Command, Type, List, Image, Code, Quote, Minus } from 'lucide-react';
+import { X, Command, Type, List, Image, Code, Quote, Minus, Bold, Italic, Strikethrough, CheckSquare, ChevronRight, MessageSquare } from 'lucide-react';
 
 const ShortcutRow = ({ command, description, icon: Icon }) => (
     <div className="flex items-center justify-between py-2 border-b border-neutral-800 last:border-0">
@@ -58,20 +58,20 @@ const ShortcutsModal = ({ isOpen, onClose }) => {
                     <ShortcutRow command="/h1" description="Heading 1" icon={Type} />
                     <ShortcutRow command="/h2" description="Heading 2" icon={Type} />
                     <ShortcutRow command="/h3" description="Heading 3" icon={Type} />
-                    <ShortcutRow command="/bold" description="Bold Text" />
-                    <ShortcutRow command="/italic" description="Italic Text" />
-                    <ShortcutRow command="/strike" description="Strikethrough" />
+                    <ShortcutRow command="/bold" description="Bold Text" icon={Bold} />
+                    <ShortcutRow command="/italic" description="Italic Text" icon={Italic} />
+                    <ShortcutRow command="/strike" description="Strikethrough" icon={Strikethrough} />
                     <ShortcutRow command="/code" description="Inline Code" icon={Code} />
 
                     <SectionHeader title="Lists" />
                     <ShortcutRow command="/ul" description="Bullet List" icon={List} />
                     <ShortcutRow command="/ol" description="Numbered List" icon={List} />
-                    <ShortcutRow command="/check" description="Check List" />
-                    <ShortcutRow command="/toggle" description="Toggle List" />
+                    <ShortcutRow command="/check" description="Check List" icon={CheckSquare} />
+                    <ShortcutRow command="/toggle" description="Toggle List" icon={ChevronRight} />
 
                     <SectionHeader title="Blocks" />
                     <ShortcutRow command="/quote" description="Quote Block" icon={Quote} />
-                    <ShortcutRow command="/callout" description="Callout Box" />
+                    <ShortcutRow command="/callout" description="Callout Box" icon={MessageSquare} />
                     <ShortcutRow command="/codeblock" description="Code Block" icon={Code} />
                     <ShortcutRow command="/hr" description="Divider" icon={Minus} />
 

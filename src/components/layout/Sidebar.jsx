@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Waypoints, Plus, Search, Trash2, Keyboard } from 'lucide-react';
-import ShortcutsModal from './ShortcutsModal';
 
 /**
  * Sidebar Component
@@ -16,9 +15,9 @@ const Sidebar = ({
     setActiveNoteId,
     setIsSidebarOpen,
     handleDeleteNote,
-    formatDate
+    formatDate,
+    setShowShortcuts
 }) => {
-    const [showShortcuts, setShowShortcuts] = useState(false);
 
     return (
         <>
@@ -122,8 +121,6 @@ const Sidebar = ({
                     </button>
                 </div>
             </div>
-
-            <ShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
         </>
     );
 };

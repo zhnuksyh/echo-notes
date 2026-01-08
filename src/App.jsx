@@ -4,6 +4,7 @@ import Sidebar from './components/layout/Sidebar';
 import EmptyState from './components/layout/EmptyState';
 import { useEditor } from './components/editor/useEditor';
 import CommandMenu from './components/editor/CommandMenu';
+import ShortcutsModal from './components/layout/ShortcutsModal';
 
 // --- Main App Logic ---
 
@@ -30,6 +31,7 @@ export default function App() {
     const [activeNoteId, setActiveNoteId] = useState(null); // ID of currently open note
     const [searchQuery, setSearchQuery] = useState(''); // Search filter text
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Toggles sidebar visibility (Desktop & Mobile)Overlay default closed
+    const [showShortcuts, setShowShortcuts] = useState(false); // New global shortcuts state
 
     // Slash Command Menu State
     const [commandMenu, setCommandMenu] = useState({
@@ -155,6 +157,37 @@ export default function App() {
         }
     };
 
+    // Global Keyboard Shortcuts (Hold Ctrl + /)
+    useEffect(() => {
+        const handleGlobalKeyDown = (e) => {
+            // Check for Ctrl + /
+            console.log(e.key);
+            if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                setShowShortcuts(true);
+            }
+        };
+
+        const handleGlobalKeyUp = (e) => {
+            if (e.key === 'Control' || e.key === 'Meta' || e.key === '/') {
+                // We can't strictly detect "release of slash while holding ctrl", but simple key up clear works well for "peek"
+                setShowShortcuts(false);
+            }
+        };
+
+        // Alternative "Toggle" approach if hold is too flaky: just use one handler
+        // But user asked for "blurs screen when holding the key".
+        // Let's rely on keydown setting true, and keyup (of either key) setting false.
+
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        window.addEventListener('keyup', handleGlobalKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleGlobalKeyDown);
+            window.removeEventListener('keyup', handleGlobalKeyUp);
+        };
+    }, []);
+
     const handleContentInput = (e) => {
         const content = e.currentTarget.innerHTML;
         const noteIndex = notes.findIndex(n => n.id === activeNoteId);
@@ -238,7 +271,10 @@ export default function App() {
     };
 
     return (
-        <div className="flex flex-row h-[100dvh] w-full bg-black font-poppins text-neutral-100 overflow-hidden">
+        <div className="flex flex-row h-[100dvh] w-full bg-black font-poppins text-neutral-100 overflow-hidden relative">
+
+            {/* Shortcuts Modal (Global Overlay) */}
+            <ShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
             {/* Mobile/Desktop Backdrop */}
             <div
                 className={`fixed inset-0 bg-black/50 z-10 backdrop-blur-sm transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
@@ -256,10 +292,11 @@ export default function App() {
                 setIsSidebarOpen={setIsSidebarOpen}
                 handleDeleteNote={handleDeleteNote}
                 formatDate={formatDate}
+                setShowShortcuts={setShowShortcuts}
             />
 
             {/* --- Main Editor Area --- */}
-            <div className={`flex-1 flex flex-col h-full relative transition-all duration-300 min-w-0`}>
+            <div className={`flex-1 flex flex-col h-full relative transition-all duration-300 min-w-0 ${showShortcuts ? 'blur-sm' : ''}`}>
 
                 {/* Editor View */}
                 {activeNote ? (
@@ -287,10 +324,14 @@ export default function App() {
                                 onChange={(e) => handleUpdateNote('title', e.target.value)}
                                 placeholder="Untitled Echo"
                                 className="w-full text-3xl md:text-4xl font-bold text-white placeholder-neutral-700 border-none focus:outline-none focus:ring-0 bg-transparent"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        editorRef.current?.focus();
+                                    }
+                                }}
                             />
                         </div>
-
-
 
                         {/* ContentEditable Editor */}
                         <div className="relative flex-1 w-full max-w-none overflow-y-auto">
